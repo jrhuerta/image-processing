@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "narrowband-normalizer"
+version = "0.1.0"
+description = "Normalize HOS data, strongly based on work by Bill Blanshan and Mike Cranfield."
+authors = ["Joaquin Rodriguez <jrhuerta@gmail.com>"]
+license = "https://creativecommons.org/licenses/by-sa/4.0/"
+readme = "README.md"
+packages = [{ include = "narrowband_normalizer", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^2.0.1"
+astropy = "^6.1.2"
+click = "^8.1.7"
+jupyter = "^1.0.0"
+matplotlib = "^3.9.1"
+pandas = "^2.2.2"
+
+[tool.poetry.scripts]
+nbn = "narrowband_normalizer:process_image"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
