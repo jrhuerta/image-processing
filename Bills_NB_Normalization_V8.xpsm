@@ -1,0 +1,1108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+********************************************************************
+PixInsight XML Process Serialization Module - XPSM 1.0
+********************************************************************
+Generated on 2023-09-04T14:30:49.928Z
+PixInsight Core 1.8.9-2 (x64)
+Copyright (c) 2003-2023 Pleiades Astrophoto
+********************************************************************
+-->
+<xpsm version="1.0" xmlns="http://www.pixinsight.com/xpsm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.pixinsight.com/xpsm http://pixinsight.com/xpsm/xpsm-1.0.xsd">
+   <instance class="PixelMath" version="256" id="HOSNormalization_V8_instance">
+      <parameter id="expression">/*       Normalize HOS data with Pixelmath - V8
+          by Bill Blanshan and Mike Cranfield                */
+                    
+Mode=           1 ; //&lt;-- Data type, 0: linear, 1: Non-linear
+Lightness=      0 ; //&lt;-- 0=OFF, 1=Original, 2=Ha, 3=SII, 4=OIII
+SCNR=           0 ; //&lt;-- 0=OFF, 1=On
+
+Blackpoint=  1.00 ; //&lt;-- Blackpoint range (0 to 1= min to med)
+SIIBoost=    1.00 ; //&lt;-- Increase to boost SII
+OIIIBoost=   1.00 ; //&lt;-- Increase to boost OIII
+HLRecover=   1.00 ; //&lt;-- If highlights are clipped, increase &gt;1
+HLReduction= 1.00 ; //&lt;-- If highlights are too bright, increase &gt;1
+Brightness=  1.00 ; //&lt;-- Increase to stretch image
+
+/* Drag the bottom left arrow over to your HOS image
+
+ Hope you enjoy!!!
+
+Important Operation notes:
+The preferred choice for narrowband normalization is on a
+non-linear starless image.  You can run this process on a
+linear image, however you will not be able to use the new
+Lightness feature.  When stretching an image that has been
+normalized in linear mode, the preferred stretch method after
+is a &quot;Linked&quot; stretched
+
+V7 update Notes and Instructions:
+
+Notes:  In this release, we simplified the normalization
+process plus giving you the option to normalize linear
+and non-linear images.  It is still recommended this process
+be performed on a starless image as the normalization
+process can hurt the star color.  Also, we are converting
+the image from RGB to the LAB color space which offers
+better lighting control.  By using the &quot;Lightness&quot; of
+the original image or the Lightness from the Ha data,
+helps maintain color and brightness control far better
+than when using luminance as done in Version 5. The
+downside is,the Lightness feature only works on
+non-linear images. 
+
+1) Mode:  When processing linear data (unstretched),
+   select mode:0. When processing none-linear data,
+   select mode:1.  The advantage of processing in
+   linear state is you can stretch the data afterwards
+   using a linked or un-linked stretch to give you
+   different appearances. The downside is, you cannot
+   use the Lightness feature as it only works on
+   non-linear images (Mode:1).
+      
+2) Lightness:  The advantage of using Lightness is to
+   help control color and brightness better within the
+   LAB color space.  It is also good for showing off
+   more detail i.e. if Ha &quot;2&quot; mode is used, you will see
+   detail within the Ha regions of the image. When Lightness
+   feature is set to Off &quot;0&quot;, the produced image has
+   no Lightness correction. When set to &quot;1&quot;, the produced
+   image using the original image Lightness. This feature
+   is only available for Non-Linear images.
+
+3) SCNR:  When On, any green cast will be removed while
+   retaining its luminance 
+
+4) Blackpoint:  This feature allows you to control where
+   normalization turn on in the blackpoint zone. This is
+   an interpolation between the minimum and median image
+   values, so a Blackpoint of 0 will begin the normalization
+   after the minimum image value.  A value of 1 will do the
+   same but starts the normalization after the median image
+   value. Any value can be used between 0 and 1 e.g. 0.85.
+   This feature helps allow fainter signals to be normalized
+   but subsequently can allow for more noise.  
+
+5) OIII &amp; SIIBoost:  These feature allows you to boost or
+   reduce more OIII/SII signal into your image. a value
+   greater than 1 will boost and a value less than 1 will
+   reduce. It is unlikely you will need to use this but
+   I gave you the option just in case.
+
+6) HLRecover:   This features is a linear rescaling method
+   to help recover highlights in case they have been clipped.
+   The default value is 1, so if you run this normalization
+   process and your image is clipped, you can increase this
+   value to unclip the image e.g. a value of 1.1 or 1.2 might
+   be ok. Always leave at value 1 unless you need to recover
+   clipped data.
+
+8) HLReduction:  This feature is a reversed curve stretch
+   on the highlights alone. example, the Rosette nebula has
+   a bright core.  You can use this method by increasing the
+   value to greater than 1 to help reduce the highlights while
+   keeping your shadows the same.  This method can also work
+   in reverse, meaning, you can reduce this value to increase
+   highlights ;-)
+
+9) Brightness:  This is the final step within this
+   pixelmath script.  This feature will perform a curve
+   stretch to increase overall brightness of the image with
+   a value greater than 1. A value less than 1 will reduce
+   brightness but should not be used to regain clipping, that
+   should be done using the HLRecover feature.
+
+
+Notes:
+   
+1) It is suggested to run normalization on a starless
+   image. An image with stars will can result in severely
+   discolored stars after normalization.
+   
+2) Regarding stretching of normalized &quot;linear&quot; data, it is
+   recommended to use a linked stretch, such as GHS,
+   EZ Soft Stretch, or my pixelmath stretch scripts.
+
+   If you plan on performing normalization on an image in
+   a non-linear state and are using my pixelmath scripts,
+   it is best to use the unlinked stretch as this will
+   also help with boosting OIII/SII signals. Otherwise,
+   please use GHS, EZ Soft Stretch or my pixelmath script.
+
+   Also, dont over stretch your image!  This can happen
+   when using stretching scripts/maths if the image has
+   been denoised in the linear stage. So please control
+   your stretching :-)
+
+3) Make sure your starless image is background neutralized!
+   When performing this on a non-linear image, and using
+   the BackgroundNeutralization process, it is best to set
+   the BackgroundNeutralization Upper limit value to a
+   value higher than your backround reading.  Then set the
+   working mode to &quot;Target Background&quot; and use a value
+   to your liking e.g. 0.150.  This helps give good results
+   for normalization. 
+
+4) Preferred method for adding the stars back is using
+   our &quot;Screen Stars&quot; script, or my RGB to Narrowband
+   pixelmath so that star color is preserved.   
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+*/
+
+M= (min($T)+Blackpoint*(med($T)-min($T))/1);
+E0= adev($T)/1.2533 + mean($T) - M;
+
+A0= E0/~M[1];
+E1= (A0[1]*(1-A0[0])/(A0[1] - 2*A0[1]*A0[0] + A0[0]))/OIIIBoost;
+E2= rescale($T[1], M[1],1);
+E3 = ~(~mtf(E1, E2) * ~min($T[1], M[1]));
+
+A1= E0/~M[2];
+E4= (A0[2]*(1-A0[0])/(A0[2] - 2*A0[2]*A0[0] + A0[0]))/SIIBoost;
+E5= rescale($T[2], M[2],1);
+E6 = ~(~mtf(E1, E5) * ~min($T[2], M[2]));
+
+R= $T[0];
+G= iif(SCNR==0,E3,min(mean($T[0],E6),E3));
+B= E6;
+
+R1= iif(R&gt;0.04045, ((R+0.055)/1.055)^ 2.4,R/ 12.92);
+G1= iif(G&gt;0.04045, ((G+0.055)/1.055)^ 2.4,G/ 12.92);
+B1= iif(B&gt;0.04045, ((B+0.055)/1.055)^ 2.4,B/ 12.92);
+
+X= ((R1*0.4360747) + (G1*0.3850649) + (B1*0.1430804));
+Y= ((R1*0.2225045) + (G1*0.7168786) + (B1*0.0606169));
+Z= ((R1*0.0139322) + (G1*0.0971045) + (B1*0.7141733));
+X1= iif(X&gt;0.008856, X^(1/3),(7.787*X)+(16/116) );
+Y1= iif(Y&gt;0.008856, Y^(1/3),(7.787*Y)+(16/116) );
+Z1= iif(Z&gt;0.008856, Z^(1/3),(7.787*Z)+(16/116) );
+L= 116*Y1-16;  
+a= (500*(X1-Y1));  
+b= (200*(Y1-Z1));   
+
+Y2= iswitch(Lightness==0,(L+16)/116,
+            Lightness==1,(CIEL($T)+.16)/1.16,
+            Lightness==2,($T[0]+.16)/1.16,
+            Lightness==3,($T[2]+.16)/1.16, ($T[1]+.16)/1.16);
+X2= (a/500)+Y2;
+Z2= Y2-(b/200);
+X3= iif(X2&gt;0.008856, X2^3,(X2-16/116)/7.787);
+Y3= iif(Y2&gt;0.008856, Y2^3,(Y2-16/116)/7.787);
+Z3= iif(Z2&gt;0.008856, Z2^3,(Z2-16/116)/7.787);
+R2= ((X3* 3.1338561) + (Y3*-1.6168667) + (Z3*-0.4906146));
+G2= ((X3*-0.9787684) + (Y3* 1.9161415) + (Z3* 0.0334540));
+B2= ((X3* 0.0719453) + (Y3*-0.2289914) + (Z3* 1.4052427));
+R3= iif(R2&gt;0.0031308, 1.055*(R2^(1/2.4))-0.055,12.92*R2);
+G3= iif(G2&gt;0.0031308, 1.055*(G2^(1/2.4))-0.055,12.92*G2);
+B3= iif(B2&gt;0.0031308, 1.055*(B2^(1/2.4))-0.055,12.92*B2);
+
+E10= iif(Mode==0,iif($T==$T[0],R,iif($T==$T[1],G,B)),
+     iif($T==$T[0],R3,iif($T==$T[1],G3,B3)) );
+
+E11= (mtf(~(1/HLReduction*.5),E10)*E10)+(E10*~E10);
+E12= mtf((1/Brightness*.5),E11);
+E13= rescale(E12,0,HLRecover);
+E13</parameter>
+      <parameter id="expression1"></parameter>
+      <parameter id="expression2"></parameter>
+      <parameter id="expression3"></parameter>
+      <parameter id="useSingleExpression" value="true"/>
+      <parameter id="symbols">Symbols,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OIIIBoost,SIIBoost,Brightness,Mode,Blackpoint,
+Lightness,HLReduction,HLRecover,SCNR,M,A0,A1,
+E0,E1,E2,E3,E4,E5,E6,E7,E8,E9,E10,
+E11,E12,E13,E14,E15,E16,E17,E18,
+R,G,B,R1,G1,B1,R2,G2,B2,R3,G3,B3,L,a,b,
+X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,X3,Y3,Z3,</parameter>
+      <parameter id="clearImageCacheAndExit" value="false"/>
+      <parameter id="cacheGeneratedImages" value="false"/>
+      <parameter id="generateOutput" value="true"/>
+      <parameter id="singleThreaded" value="false"/>
+      <parameter id="optimization" value="true"/>
+      <parameter id="use64BitWorkingImage" value="false"/>
+      <parameter id="rescale" value="false"/>
+      <parameter id="rescaleLower" value="0"/>
+      <parameter id="rescaleUpper" value="1"/>
+      <parameter id="truncate" value="true"/>
+      <parameter id="truncateLower" value="0"/>
+      <parameter id="truncateUpper" value="1"/>
+      <parameter id="createNewImage" value="false"/>
+      <parameter id="showNewImage" value="true"/>
+      <parameter id="newImageId">Normalized_HOS</parameter>
+      <parameter id="newImageWidth" value="0"/>
+      <parameter id="newImageHeight" value="0"/>
+      <parameter id="newImageAlpha" value="false"/>
+      <parameter id="newImageColorSpace" value="SameAsTarget"/>
+      <parameter id="newImageSampleFormat" value="SameAsTarget"/>
+      <table id="outputData" rows="0"/>
+   </instance>
+   <instance class="PixelMath" version="256" id="HSONormalization_V8_instance">
+      <parameter id="expression">/*       Normalize HSO data with Pixelmath - V8
+          by Bill Blanshan and Mike Cranfield                */
+                    
+Mode=           1 ; //&lt;-- Data type, 0: linear, 1: Non-linear
+Lightness=      0 ; //&lt;-- 0=OFF, 1=Original, 2=Ha, 3=SII, 4=OIII
+SCNR=           0 ; //&lt;-- 0=OFF, 1=On
+
+Blackpoint=  1.00 ; //&lt;-- Blackpoint range (0 to 1= min to med)
+SIIBoost=    1.00 ; //&lt;-- Increase to boost SII
+OIIIBoost=   1.00 ; //&lt;-- Increase to boost OIII
+HLRecover=   1.00 ; //&lt;-- If highlights are clipped, increase &gt;1
+HLReduction= 1.00 ; //&lt;-- If highlights are too bright, increase &gt;1
+Brightness=  1.00 ; //&lt;-- Increase to stretch image
+
+/* Drag the bottom left arrow over to your HSO image
+
+ Hope you enjoy!!!
+
+Important Operation notes:
+The preferred choice for narrowband normalization is on a
+non-linear starless image.  You can run this process on a
+linear image, however you will not be able to use the new
+Lightness feature.  When stretching an image that has been
+normalized in linear mode, the preferred stretch method after
+is a &quot;Linked&quot; stretched
+
+V7 update Notes and Instructions:
+
+Notes:  In this release, we simplified the normalization
+process plus giving you the option to normalize linear
+and non-linear images.  It is still recommended this process
+be performed on a starless image as the normalization
+process can hurt the star color.  Also, we are converting
+the image from RGB to the LAB color space which offers
+better lighting control.  By using the &quot;Lightness&quot; of
+the original image or the Lightness from the Ha data,
+helps maintain color and brightness control far better
+than when using luminance as done in Version 5. The
+downside is,the Lightness feature only works on
+non-linear images. 
+
+1) Mode:  When processing linear data (unstretched),
+   select mode:0. When processing none-linear data,
+   select mode:1.  The advantage of processing in
+   linear state is you can stretch the data afterwards
+   using a linked or un-linked stretch to give you
+   different appearances. The downside is, you cannot
+   use the Lightness feature as it only works on
+   non-linear images (Mode:1).
+      
+2) Lightness:  The advantage of using Lightness is to
+   help control color and brightness better within the
+   LAB color space.  It is also good for showing off
+   more detail i.e. if Ha &quot;2&quot; mode is used, you will see
+   detail within the Ha regions of the image. When Lightness
+   feature is set to Off &quot;0&quot;, the produced image has
+   no Lightness correction. When set to &quot;1&quot;, the produced
+   image using the original image Lightness. This feature
+   is only available for Non-Linear images.
+
+3) SCNR:  When On, any green cast will be removed while
+   retaining its luminance 
+
+4) Blackpoint:  This feature allows you to control where
+   normalization turn on in the blackpoint zone. This is
+   an interpolation between the minimum and median image
+   values, so a Blackpoint of 0 will begin the normalization
+   after the minimum image value.  A value of 1 will do the
+   same but starts the normalization after the median image
+   value. Any value can be used between 0 and 1 e.g. 0.85.
+   This feature helps allow fainter signals to be normalized
+   but subsequently can allow for more noise.  
+
+5) OIII &amp; SIIBoost:  These feature allows you to boost or
+   reduce more OIII/SII signal into your image. a value
+   greater than 1 will boost and a value less than 1 will
+   reduce. It is unlikely you will need to use this but
+   I gave you the option just in case.
+
+6) HLRecover:   This features is a linear rescaling method
+   to help recover highlights in case they have been clipped.
+   The default value is 1, so if you run this normalization
+   process and your image is clipped, you can increase this
+   value to unclip the image e.g. a value of 1.1 or 1.2 might
+   be ok. Always leave at value 1 unless you need to recover
+   clipped data.
+
+8) HLReduction:  This feature is a reversed curve stretch
+   on the highlights alone. example, the Rosette nebula has
+   a bright core.  You can use this method by increasing the
+   value to greater than 1 to help reduce the highlights while
+   keeping your shadows the same.  This method can also work
+   in reverse, meaning, you can reduce this value to increase
+   highlights ;-)
+
+9) Brightness:  This is the final step within this
+   pixelmath script.  This feature will perform a curve
+   stretch to increase overall brightness of the image with
+   a value greater than 1. A value less than 1 will reduce
+   brightness but should not be used to regain clipping, that
+   should be done using the HLRecover feature.
+
+
+Notes:
+   
+1) It is suggested to run normalization on a starless
+   image. An image with stars will can result in severely
+   discolored stars after normalization.
+   
+2) Regarding stretching of normalized &quot;linear&quot; data, it is
+   recommended to use a linked stretch, such as GHS,
+   EZ Soft Stretch, or my pixelmath stretch scripts.
+
+   If you plan on performing normalization on an image in
+   a non-linear state and are using my pixelmath scripts,
+   it is best to use the unlinked stretch as this will
+   also help with boosting OIII/SII signals. Otherwise,
+   please use GHS, EZ Soft Stretch or my pixelmath script.
+
+   Also, dont over stretch your image!  This can happen
+   when using stretching scripts/maths if the image has
+   been denoised in the linear stage. So please control
+   your stretching :-)
+
+3) Make sure your starless image is background neutralized!
+   When performing this on a non-linear image, and using
+   the BackgroundNeutralization process, it is best to set
+   the BackgroundNeutralization Upper limit value to a
+   value higher than your backround reading.  Then set the
+   working mode to &quot;Target Background&quot; and use a value
+   to your liking e.g. 0.150.  This helps give good results
+   for normalization. 
+
+4) Preferred method for adding the stars back is using
+   our &quot;Screen Stars&quot; script, or my RGB to Narrowband
+   pixelmath so that star color is preserved.   
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+*/
+
+M= (min($T)+Blackpoint*(med($T)-min($T))/1);
+E0= adev($T)/1.2533 + mean($T) - M;
+
+A0= E0/~M[1];
+E1= (A0[1]*(1-A0[0])/(A0[1] - 2*A0[1]*A0[0] + A0[0]))/SIIBoost;
+E2= rescale($T[1], M[1],1);
+E3 = ~(~mtf(E1, E2) * ~min($T[1], M[1]));
+
+A1= E0/~M[2];
+E4= (A0[2]*(1-A0[0])/(A0[2] - 2*A0[2]*A0[0] + A0[0]))/OIIIBoost;
+E5= rescale($T[2], M[2],1);
+E6 = ~(~mtf(E1, E5) * ~min($T[2], M[2]));
+
+R= $T[0];
+G= iif(SCNR==0,E3,min(mean($T[0],E6),E3));
+B= E6;
+
+R1= iif(R&gt;0.04045, ((R+0.055)/1.055)^ 2.4,R/ 12.92);
+G1= iif(G&gt;0.04045, ((G+0.055)/1.055)^ 2.4,G/ 12.92);
+B1= iif(B&gt;0.04045, ((B+0.055)/1.055)^ 2.4,B/ 12.92);
+
+X= ((R1*0.4360747) + (G1*0.3850649) + (B1*0.1430804));
+Y= ((R1*0.2225045) + (G1*0.7168786) + (B1*0.0606169));
+Z= ((R1*0.0139322) + (G1*0.0971045) + (B1*0.7141733));
+X1= iif(X&gt;0.008856, X^(1/3),(7.787*X)+(16/116) );
+Y1= iif(Y&gt;0.008856, Y^(1/3),(7.787*Y)+(16/116) );
+Z1= iif(Z&gt;0.008856, Z^(1/3),(7.787*Z)+(16/116) );
+L= 116*Y1-16;  
+a= (500*(X1-Y1));  
+b= (200*(Y1-Z1));   
+
+Y2= iswitch(Lightness==0,(L+16)/116,
+            Lightness==1,(CIEL($T)+.16)/1.16,
+            Lightness==2,($T[0]+.16)/1.16,
+            Lightness==3,($T[1]+.16)/1.16, ($T[2]+.16)/1.16);
+X2= (a/500)+Y2;
+Z2= Y2-(b/200);
+X3= iif(X2&gt;0.008856, X2^3,(X2-16/116)/7.787);
+Y3= iif(Y2&gt;0.008856, Y2^3,(Y2-16/116)/7.787);
+Z3= iif(Z2&gt;0.008856, Z2^3,(Z2-16/116)/7.787);
+R2= ((X3* 3.1338561) + (Y3*-1.6168667) + (Z3*-0.4906146));
+G2= ((X3*-0.9787684) + (Y3* 1.9161415) + (Z3* 0.0334540));
+B2= ((X3* 0.0719453) + (Y3*-0.2289914) + (Z3* 1.4052427));
+R3= iif(R2&gt;0.0031308, 1.055*(R2^(1/2.4))-0.055,12.92*R2);
+G3= iif(G2&gt;0.0031308, 1.055*(G2^(1/2.4))-0.055,12.92*G2);
+B3= iif(B2&gt;0.0031308, 1.055*(B2^(1/2.4))-0.055,12.92*B2);
+
+E10= iif(Mode==0,iif($T==$T[0],R,iif($T==$T[1],G,B)),
+     iif($T==$T[0],R3,iif($T==$T[1],G3,B3)) );
+
+E11= (mtf(~(1/HLReduction*.5),E10)*E10)+(E10*~E10);
+E12= mtf((1/Brightness*.5),E11);
+E13= rescale(E12,0,HLRecover);
+E13</parameter>
+      <parameter id="expression1"></parameter>
+      <parameter id="expression2"></parameter>
+      <parameter id="expression3"></parameter>
+      <parameter id="useSingleExpression" value="true"/>
+      <parameter id="symbols">Symbols,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OIIIBoost,SIIBoost,Brightness,Mode,Blackpoint,
+Lightness,HLReduction,HLRecover,SCNR,M,A0,A1,
+E0,E1,E2,E3,E4,E5,E6,E7,E8,E9,E10,
+E11,E12,E13,E14,E15,E16,E17,E18,
+R,G,B,R1,G1,B1,R2,G2,B2,R3,G3,B3,L,a,b,
+X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,X3,Y3,Z3,</parameter>
+      <parameter id="clearImageCacheAndExit" value="false"/>
+      <parameter id="cacheGeneratedImages" value="false"/>
+      <parameter id="generateOutput" value="true"/>
+      <parameter id="singleThreaded" value="false"/>
+      <parameter id="optimization" value="true"/>
+      <parameter id="use64BitWorkingImage" value="false"/>
+      <parameter id="rescale" value="false"/>
+      <parameter id="rescaleLower" value="0"/>
+      <parameter id="rescaleUpper" value="1"/>
+      <parameter id="truncate" value="true"/>
+      <parameter id="truncateLower" value="0"/>
+      <parameter id="truncateUpper" value="1"/>
+      <parameter id="createNewImage" value="false"/>
+      <parameter id="showNewImage" value="true"/>
+      <parameter id="newImageId">Normalized_HSO</parameter>
+      <parameter id="newImageWidth" value="0"/>
+      <parameter id="newImageHeight" value="0"/>
+      <parameter id="newImageAlpha" value="false"/>
+      <parameter id="newImageColorSpace" value="SameAsTarget"/>
+      <parameter id="newImageSampleFormat" value="SameAsTarget"/>
+      <table id="outputData" rows="0"/>
+   </instance>
+   <instance class="PixelMath" version="256" id="HOONormalization_V8_instance">
+      <parameter id="expression">/*       Normalize HOO data with Pixelmath - V8
+          by Bill Blanshan and Mike Cranfield                */
+
+Mode=           1 ; //&lt;-- Data type, 0: linear, 1: Non-linear
+BlendMode=      0 ; //&lt;-- 0= Lukomatico, 1= AAC-1, 2= AAC-2
+Lightness=      0 ; //&lt;-- 0=OFF, 1=Original, 2=Ha, 3=OIII
+HaBlend=      0.6 ; //&lt;-- Higher the value, more &quot;SHO&quot; like image
+
+Blackpoint=  1.00 ; //&lt;-- Blackpoint range between minimum and maximum
+OIIIBoost=   1.00 ; //&lt;-- Increase to boost OIII
+HLRecover=   1.00 ; //&lt;-- If highlights are clipped, increase &gt;1
+HLReduction= 1.00 ; //&lt;-- If highlights are too bright, increase &gt;1
+Brightness=  1.00 ; //&lt;-- Increase to stretch image
+
+/* Example settings:
+   SHO style image:        BlendMod=0, HaBlend= 0.6
+   Traditional HOO image:  BlendMod=1, HaBlend= 0.5
+   Alternative HOO image:  BlendMod=2, HaBlend= 0.4
+   
+Drag the bottom left arrow over to your HOO image
+
+Hope you enjoy!!!
+
+Important Operation notes:
+The preferred choice for narrowband normalization is on a
+non-linear starless image.  You can run this process on a
+linear image, however you will not be able to use the new
+Lightness feature.  When stretching an image that has been
+normalized in linear mode, the preferred stretch method after
+is a &quot;Linked&quot; stretched
+
+V7 update Notes and Instructions:
+
+Notes:  In this release, we simplified the normalization
+process plus giving you the option to normalize linear
+and non-linear images.  It is still recommended this process
+be performed on a starless image as the normalization
+process can hurt the star color.  Also, we are converting
+the image from RGB to the LAB color space which offers
+better lighting control.  By using the &quot;Lightness&quot; of
+the original image or the Lightness from the Ha data,
+helps maintain color and brightness control far better
+than when using luminance as done in Version 5. The
+downside is,the Lightness feature only works on
+non-linear images. 
+
+1) Mode:  When processing linear data (unstretched),
+   select mode:0. When processing none-linear data,
+   select mode:1.  The advantage of processing in
+   linear state is you can stretch the data afterwards
+   using a linked or un-linked stretch to give you
+   different appearances. The downside is, you cannot
+   use the Lightness feature as it only works on
+   non-linear images (Mode:1).
+      
+2) BlendMode:  Here we have two options to help create
+   the synthetic green channel using the Ha and OIII
+   data. Mode:0 and Mode:1
+
+   Mode: 0 is the Luke Newbould &quot;Lukomatico&quot; approach,
+   where we blend in the Ha to that of the normalized OIII
+   to create the green channel. Here, Ha is red, OIII
+   is blue, and green is the blend. Depending on the
+   HaBlend value used, the results can produce images
+   that have &quot;SHO&quot; like appearance. 
+
+   Mode: 1 is my AAC method of creating a synthetic
+   green, here we blend the normalized OIII data to that
+   of original OIII data to create the Green.
+   We then use Ha for Red and normalized OIII for blue.  
+   The advantage of this method is to help showcase the
+   &quot;HOO&quot; pallet more by showing off the Reds and Blues.
+   The Ha blend is controlled by the &quot;HaBlend&quot; feature.
+
+   Mode: 2 is another AAC method of creating a synthetic
+   green, here we blend the Ha data to that of original
+   OIII data to create the Green. We then use Ha for
+   Red and normalized OIII for blue. The advantage of
+   this method is to help showcase the &quot;HOO&quot; pallet more
+   by showing off the Reds and Blues. The Ha blend is
+   controlled by the &quot;HaBlend&quot; feature.
+  
+3) Lightness:  The advantage of using Lightness is to
+   help control color and brightness better within the
+   LAB color space.  It is also good for showing off
+   more detail i.e. if Ha &quot;2&quot; mode is used, you will see
+   detail within the Ha regions of the image. When Lightness
+   feature is set to Off &quot;0&quot;, the produced image has
+   no Lightness correction. When set to &quot;1&quot;, the produced
+   image using the original image Lightness. This feature
+   is only available for Non-Linear images.
+
+4) HaBlend:  This feature allows you to control the blend
+   amount of the Ha signal to that of the OIII signal
+   to help create the synthetic green channel i.e. 0.60
+   is a 60% blend of Ha and 40% of OIII.  Example: When
+   using a BlendMode of 0 &quot;Lukomatico&quot; method, the
+   higher this HaBlend value is, the more &quot;SHO&quot; like
+   image is produced; a value of 0.6 is a good place to
+   start. When using &quot;AAC&quot; BlendMode 1 or 2 , the lower the
+   HaBlend value the mode &quot;HOO&quot; like image is produced.
+
+5) Blackpoint:  This feature allows you to control where
+   normalization turn on in the blackpoint zone. This is
+   an interpolation between the minimum and median image
+   values, so a Blackpoint of 0 will begin the normalization
+   after the minimum image value.  A value of 1 will do the
+   same but starts the normalization after the median image
+   value. Any value can be used between 0 and 1 e.g. 0.85.
+   This feature helps allow fainter signals to be normalized
+   but subsequently can allow for more noise.  
+
+6) OIIIBoost:  This feature allows you to boost or
+   reduce more OIII signal into your image. a value greater
+   than 1 will boost and a value less than 1 will reduce.
+   It is unlikely you will need to use this but I gave you
+   the option just in case.
+
+7) HLRecover:   This feature is a linear rescaling method
+   to help recover highlights in case they have been clipped.
+   The default value is 1, so if you run this normalization
+   process and your image is clipped, you can increase this
+   value to unclip the image e.g. a value of 1.1 or 1.2 might
+   be ok. Always leave at value 1 unless you need to recover
+   clipped data.
+
+8) HLReduction:  This feature is a reversed curve stretch
+   on the highlights alone. example, the Rosette nebula has
+   a bright core.  You can use this method by increasing the
+   value to greater than 1 to help reduce the highlights while
+   keeping your shadows the same.  This method can also work
+   in reverse, meaning, you can reduce this value to increase
+   highlights ;-)
+
+9) Brightness:  This is the final step within this
+   pixelmath script.  This feature will perform a curve
+   stretch to increase overall brightness of the image with
+   a value greater than 1. A value less than 1 will reduce
+   brightness but should not be used to regain clipping, that
+   should be done using the HLRecover feature.
+
+
+Notes:
+   
+1) It is suggested to run normalization on a starless
+   image. An image with stars will can result in severely
+   discolored stars after normalization.
+   
+2) Regarding stretching of normalized &quot;linear&quot; data, it is
+   recommended to use a linked stretch, such as GHS,
+   EZ Soft Stretch, or my pixelmath stretch script.
+
+   If you plan on performing normalization on an image in
+   a non-linear state and are using my pixelmath scripts,
+   it is best to use the unlinked stretch as this will
+   also help with boosting OIII/SII signals. Otherwise,
+   please use GHS, EZ Soft Stretch or my pixelmath script.
+
+   Also, dont over stretch your image!  This can happen
+   when using stretching scripts/maths if the image has
+   been denoised in the linear stage. So please control
+   your stretching :-)
+
+3) Make sure your starless image is background neutralized!
+   When performing this on a non-linear image, and using
+   the BackgroundNeutralization process, it is best to set
+   the BackgroundNeutralization Upper limit value to a
+   value higher than your backround reading.  Then set the
+   working mode to &quot;Target Background&quot; and use a value
+   to your liking e.g. 0.150.  This helps give good results
+   for normalization. 
+
+4) Preferred method for adding the stars back is using
+   the &quot;unscreen/screen&quot; method, or my RGB to Narrowband
+   pixelmath so that star color is preserved.   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+
+
+
+
+M= (min($T)+Blackpoint*(med($T)-min($T))/1);
+
+E0= adev($T)/1.2533 + mean($T) - M;
+
+A0= E0/~M[1];
+E1= (A0[1]*(1-A0[0])/(A0[1] - 2*A0[1]*A0[0] + A0[0]))/OIIIBoost;
+E2= rescale($T[1], M[1],1);
+E3 = ~(~mtf(E1, E2) * ~min($T[1], M[1]));
+
+E4= iswitch(BlendMode==0,(($T[0]*HaBlend)+(E3*~HaBlend)),
+            BlendMode==1,((E3*HaBlend)+($T[1]*~HaBlend)),
+                         (($T[0]*HaBlend)+($T[1]*~HaBlend)));  
+
+R= $T[0];
+G= E4;
+B= E3;
+
+R1= iif(R&gt;0.04045, ((R+0.055)/1.055)^ 2.4,R/ 12.92);
+G1= iif(G&gt;0.04045, ((G+0.055)/1.055)^ 2.4,G/ 12.92);
+B1= iif(B&gt;0.04045, ((B+0.055)/1.055)^ 2.4,B/ 12.92);
+
+X= ((R1*0.4360747) + (G1*0.3850649) + (B1*0.1430804));
+Y= ((R1*0.2225045) + (G1*0.7168786) + (B1*0.0606169));
+Z= ((R1*0.0139322) + (G1*0.0971045) + (B1*0.7141733));
+X1= iif(X&gt;0.008856, X^(1/3),(7.787*X)+(16/116) );
+Y1= iif(Y&gt;0.008856, Y^(1/3),(7.787*Y)+(16/116) );
+Z1= iif(Z&gt;0.008856, Z^(1/3),(7.787*Z)+(16/116) );
+L= 116*Y1-16;  
+a= (500*(X1-Y1));  
+b= (200*(Y1-Z1));   
+
+Y2= iswitch(Lightness==0,(L+16)/116,
+            Lightness==1,(CIEL($T)+.16)/1.16,
+            Lightness==2,($T[0]+.16)/1.16,
+            ($T[1]+.16)/1.16);
+X2= (a/500)+Y2;
+Z2= Y2-(b/200);
+X3= iif(X2&gt;0.008856, X2^3,(X2-16/116)/7.787);
+Y3= iif(Y2&gt;0.008856, Y2^3,(Y2-16/116)/7.787);
+Z3= iif(Z2&gt;0.008856, Z2^3,(Z2-16/116)/7.787);
+R2= ((X3* 3.1338561) + (Y3*-1.6168667) + (Z3*-0.4906146));
+G2= ((X3*-0.9787684) + (Y3* 1.9161415) + (Z3* 0.0334540));
+B2= ((X3* 0.0719453) + (Y3*-0.2289914) + (Z3* 1.4052427));
+R3= iif(R2&gt;0.0031308, 1.055*(R2^(1/2.4))-0.055,12.92*R2);
+G3= iif(G2&gt;0.0031308, 1.055*(G2^(1/2.4))-0.055,12.92*G2);
+B3= iif(B2&gt;0.0031308, 1.055*(B2^(1/2.4))-0.055,12.92*B2);
+
+E10= iif(Mode==0,iif($T==$T[0],R,iif($T==$T[1],G,B)),
+     iif($T==$T[0],R3,iif($T==$T[1],G3,B3)) );
+
+E11= (mtf(~(1/HLReduction*.5),E10)*E10)+(E10*~E10);
+E12= mtf((1/Brightness*.5),E11);
+E13= rescale(E12,0,HLRecover);
+
+E13</parameter>
+      <parameter id="expression1"></parameter>
+      <parameter id="expression2"></parameter>
+      <parameter id="expression3"></parameter>
+      <parameter id="useSingleExpression" value="true"/>
+      <parameter id="symbols">Symbols,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mode,BlendMode,OIIIBoost,Brightness,HaBlend,Blackpoint,
+Lightness,HLReduction,HLRecover,M,A0,
+E0,E1,E2,E3,E4,E5,E6,E7,E8,E9,E10,
+E11,E12,E13,E14,E15,
+R,G,B,R1,G1,B1,R2,G2,B2,R3,G3,B3,L,a,b,
+X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,X3,Y3,Z3,</parameter>
+      <parameter id="clearImageCacheAndExit" value="false"/>
+      <parameter id="cacheGeneratedImages" value="false"/>
+      <parameter id="generateOutput" value="true"/>
+      <parameter id="singleThreaded" value="false"/>
+      <parameter id="optimization" value="true"/>
+      <parameter id="use64BitWorkingImage" value="false"/>
+      <parameter id="rescale" value="false"/>
+      <parameter id="rescaleLower" value="0"/>
+      <parameter id="rescaleUpper" value="1"/>
+      <parameter id="truncate" value="true"/>
+      <parameter id="truncateLower" value="0"/>
+      <parameter id="truncateUpper" value="1"/>
+      <parameter id="createNewImage" value="false"/>
+      <parameter id="showNewImage" value="true"/>
+      <parameter id="newImageId">NormalizedHOO</parameter>
+      <parameter id="newImageWidth" value="0"/>
+      <parameter id="newImageHeight" value="0"/>
+      <parameter id="newImageAlpha" value="false"/>
+      <parameter id="newImageColorSpace" value="SameAsTarget"/>
+      <parameter id="newImageSampleFormat" value="SameAsTarget"/>
+      <table id="outputData" rows="0"/>
+   </instance>
+   <instance class="PixelMath" version="256" id="SHONormalization_V8_instance">
+      <parameter id="expression">/*       Normalize SHO data with Pixelmath - V8
+          by Bill Blanshan and Mike Cranfield                */
+                    
+Mode=           1 ; //&lt;-- Data type, 0: linear, 1: Non-linear
+Lightness=      0 ; //&lt;-- 0=OFF, 1=Original, 2=Ha, 3=SII, 4=OIII
+SCNR=           0 ; //&lt;-- 0=OFF, 1=On
+
+Blackpoint=  1.00 ; //&lt;-- Blackpoint range (0 to 1= min to med)
+SIIBoost=    1.00 ; //&lt;-- Increase to boost SII
+OIIIBoost=   1.00 ; //&lt;-- Increase to boost OIII
+HLRecover=   1.00 ; //&lt;-- If highlights are clipped, increase &gt;1
+HLReduction= 1.00 ; //&lt;-- If highlights are too bright, increase &gt;1
+Brightness=  1.00 ; //&lt;-- Increase to stretch image
+
+/* Drag the bottom left arrow over to your SHO image
+
+ Hope you enjoy!!!
+
+Important Operation notes:
+The preferred choice for narrowband normalization is on a
+non-linear starless image.  You can run this process on a
+linear image, however you will not be able to use the new
+Lightness feature.  When stretching an image that has been
+normalized in linear mode, the preferred stretch method after
+is a &quot;Linked&quot; stretched
+
+V7 update Notes and Instructions:
+
+Notes:  In this release, we simplified the normalization
+process plus giving you the option to normalize linear
+and non-linear images.  It is still recommended this process
+be performed on a starless image as the normalization
+process can hurt the star color.  Also, we are converting
+the image from RGB to the LAB color space which offers
+better lighting control.  By using the &quot;Lightness&quot; of
+the original image or the Lightness from the Ha data,
+helps maintain color and brightness control far better
+than when using luminance as done in Version 5. The
+downside is,the Lightness feature only works on
+non-linear images. 
+
+1) Mode:  When processing linear data (unstretched),
+   select mode:0. When processing none-linear data,
+   select mode:1.  The advantage of processing in
+   linear state is you can stretch the data afterwards
+   using a linked or un-linked stretch to give you
+   different appearances. The downside is, you cannot
+   use the Lightness feature as it only works on
+   non-linear images (Mode:1).
+      
+2) Lightness:  The advantage of using Lightness is to
+   help control color and brightness better within the
+   LAB color space.  It is also good for showing off
+   more detail i.e. if Ha &quot;2&quot; mode is used, you will see
+   detail within the Ha regions of the image. When Lightness
+   feature is set to Off &quot;0&quot;, the produced image has
+   no Lightness correction. When set to &quot;1&quot;, the produced
+   image using the original image Lightness. This feature
+   is only available for Non-Linear images.
+
+3) SCNR:  When On, any green cast will be removed while
+   retaining its luminance 
+
+4) Blackpoint:  This feature allows you to control where
+   normalization turn on in the blackpoint zone. This is
+   an interpolation between the minimum and median image
+   values, so a Blackpoint of 0 will begin the normalization
+   after the minimum image value.  A value of 1 will do the
+   same but starts the normalization after the median image
+   value. Any value can be used between 0 and 1 e.g. 0.85.
+   This feature helps allow fainter signals to be normalized
+   but subsequently can allow for more noise.  
+
+5) OIII &amp; SIIBoost:  These feature allows you to boost or
+   reduce more OIII/SII signal into your image. a value
+   greater than 1 will boost and a value less than 1 will
+   reduce. It is unlikely you will need to use this but
+   I gave you the option just in case.
+
+6) HLRecover:   This features is a linear rescaling method
+   to help recover highlights in case they have been clipped.
+   The default value is 1, so if you run this normalization
+   process and your image is clipped, you can increase this
+   value to unclip the image e.g. a value of 1.1 or 1.2 might
+   be ok. Always leave at value 1 unless you need to recover
+   clipped data.
+
+8) HLReduction:  This feature is a reversed curve stretch
+   on the highlights alone. example, the Rosette nebula has
+   a bright core.  You can use this method by increasing the
+   value to greater than 1 to help reduce the highlights while
+   keeping your shadows the same.  This method can also work
+   in reverse, meaning, you can reduce this value to increase
+   highlights ;-)
+
+9) Brightness:  This is the final step within this
+   pixelmath script.  This feature will perform a curve
+   stretch to increase overall brightness of the image with
+   a value greater than 1. A value less than 1 will reduce
+   brightness but should not be used to regain clipping, that
+   should be done using the HLRecover feature.
+
+
+Notes:
+   
+1) It is suggested to run normalization on a starless
+   image. An image with stars will can result in severely
+   discolored stars after normalization.
+   
+2) Regarding stretching of normalized &quot;linear&quot; data, it is
+   recommended to use a linked stretch, such as GHS,
+   EZ Soft Stretch, or my pixelmath stretch scripts.
+
+   If you plan on performing normalization on an image in
+   a non-linear state and are using my pixelmath scripts,
+   it is best to use the unlinked stretch as this will
+   also help with boosting OIII/SII signals. Otherwise,
+   please use GHS, EZ Soft Stretch or my pixelmath script.
+
+   Also, dont over stretch your image!  This can happen
+   when using stretching scripts/maths if the image has
+   been denoised in the linear stage. So please control
+   your stretching :-)
+
+3) Make sure your starless image is background neutralized!
+   When performing this on a non-linear image, and using
+   the BackgroundNeutralization process, it is best to set
+   the BackgroundNeutralization Upper limit value to a
+   value higher than your backround reading.  Then set the
+   working mode to &quot;Target Background&quot; and use a value
+   to your liking e.g. 0.150.  This helps give good results
+   for normalization. 
+
+4) Preferred method for adding the stars back is using
+   our &quot;Screen Stars&quot; script, or my RGB to Narrowband
+   pixelmath so that star color is preserved.   
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+*/
+
+M= (min($T)+Blackpoint*(med($T)-min($T))/1);
+E0= adev($T)/1.2533 + mean($T) - M;
+
+A0= E0/~M[0];
+E1= (A0[0]*(1-A0[1])/(A0[0] - 2*A0[0]*A0[1] + A0[1]))/SIIBoost;
+E2= rescale($T[0], M[0],1);
+E3 = ~(~mtf(E1, E2) * ~min($T[0], M[0]));
+
+A1= E0/~M[2];
+E4= (A0[2]*(1-A0[1])/(A0[2] - 2*A0[2]*A0[1] + A0[1]))/OIIIBoost;
+E5= rescale($T[2], M[2],1);
+E6 = ~(~mtf(E1, E5) * ~min($T[2], M[2]));
+
+R= E3;
+G= iif(SCNR==0,$T[1],min(mean(E3,E6),$T[1]));
+B= E6;
+
+R1= iif(R&gt;0.04045, ((R+0.055)/1.055)^ 2.4,R/ 12.92);
+G1= iif(G&gt;0.04045, ((G+0.055)/1.055)^ 2.4,G/ 12.92);
+B1= iif(B&gt;0.04045, ((B+0.055)/1.055)^ 2.4,B/ 12.92);
+
+X= ((R1*0.4360747) + (G1*0.3850649) + (B1*0.1430804));
+Y= ((R1*0.2225045) + (G1*0.7168786) + (B1*0.0606169));
+Z= ((R1*0.0139322) + (G1*0.0971045) + (B1*0.7141733));
+X1= iif(X&gt;0.008856, X^(1/3),(7.787*X)+(16/116) );
+Y1= iif(Y&gt;0.008856, Y^(1/3),(7.787*Y)+(16/116) );
+Z1= iif(Z&gt;0.008856, Z^(1/3),(7.787*Z)+(16/116) );
+L= 116*Y1-16;  
+a= (500*(X1-Y1));  
+b= (200*(Y1-Z1));   
+
+Y2= iswitch(Lightness==0,(L+16)/116,
+            Lightness==1,(CIEL($T)+.16)/1.16,
+            Lightness==2,($T[1]+.16)/1.16,
+            Lightness==3,($T[0]+.16)/1.16, ($T[2]+.16)/1.16);
+X2= (a/500)+Y2;
+Z2= Y2-(b/200);
+X3= iif(X2&gt;0.008856, X2^3,(X2-16/116)/7.787);
+Y3= iif(Y2&gt;0.008856, Y2^3,(Y2-16/116)/7.787);
+Z3= iif(Z2&gt;0.008856, Z2^3,(Z2-16/116)/7.787);
+R2= ((X3* 3.1338561) + (Y3*-1.6168667) + (Z3*-0.4906146));
+G2= ((X3*-0.9787684) + (Y3* 1.9161415) + (Z3* 0.0334540));
+B2= ((X3* 0.0719453) + (Y3*-0.2289914) + (Z3* 1.4052427));
+R3= iif(R2&gt;0.0031308, 1.055*(R2^(1/2.4))-0.055,12.92*R2);
+G3= iif(G2&gt;0.0031308, 1.055*(G2^(1/2.4))-0.055,12.92*G2);
+B3= iif(B2&gt;0.0031308, 1.055*(B2^(1/2.4))-0.055,12.92*B2);
+
+E10= iif(Mode==0,iif($T==$T[0],R,iif($T==$T[1],G,B)),
+     iif($T==$T[0],R3,iif($T==$T[1],G3,B3)) );
+
+E11= (mtf(~(1/HLReduction*.5),E10)*E10)+(E10*~E10);
+E12= mtf((1/Brightness*.5),E11);
+E13= rescale(E12,0,HLRecover);
+E13</parameter>
+      <parameter id="expression1"></parameter>
+      <parameter id="expression2"></parameter>
+      <parameter id="expression3"></parameter>
+      <parameter id="useSingleExpression" value="true"/>
+      <parameter id="symbols">Symbols,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OIIIBoost,SIIBoost,Brightness,Mode,Blackpoint,
+Lightness,HLReduction,HLRecover,SCNR,M,A0,A1,
+E0,E1,E2,E3,E4,E5,E6,E7,E8,E9,E10,
+E11,E12,E13,E14,E15,E16,E17,E18,
+R,G,B,R1,G1,B1,R2,G2,B2,R3,G3,B3,L,a,b,
+X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,X3,Y3,Z3,</parameter>
+      <parameter id="clearImageCacheAndExit" value="false"/>
+      <parameter id="cacheGeneratedImages" value="false"/>
+      <parameter id="generateOutput" value="true"/>
+      <parameter id="singleThreaded" value="false"/>
+      <parameter id="optimization" value="true"/>
+      <parameter id="use64BitWorkingImage" value="false"/>
+      <parameter id="rescale" value="false"/>
+      <parameter id="rescaleLower" value="0"/>
+      <parameter id="rescaleUpper" value="1"/>
+      <parameter id="truncate" value="true"/>
+      <parameter id="truncateLower" value="0"/>
+      <parameter id="truncateUpper" value="1"/>
+      <parameter id="createNewImage" value="false"/>
+      <parameter id="showNewImage" value="true"/>
+      <parameter id="newImageId">Normalized_SHO</parameter>
+      <parameter id="newImageWidth" value="0"/>
+      <parameter id="newImageHeight" value="0"/>
+      <parameter id="newImageAlpha" value="false"/>
+      <parameter id="newImageColorSpace" value="SameAsTarget"/>
+      <parameter id="newImageSampleFormat" value="SameAsTarget"/>
+      <table id="outputData" rows="0"/>
+   </instance>
+   <icon id="HOSNormalization_V8" instance="HOSNormalization_V8_instance" xpos="312" ypos="200" workspace="Workspace01"/>
+   <icon id="HSONormalization_V8" instance="HSONormalization_V8_instance" xpos="312" ypos="176" workspace="Workspace01"/>
+   <icon id="HOONormalization_V8" instance="HOONormalization_V8_instance" xpos="312" ypos="128" workspace="Workspace01"/>
+   <icon id="SHONormalization_V8" instance="SHONormalization_V8_instance" xpos="312" ypos="152" workspace="Workspace01"/>
+</xpsm>
